@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>BMJ - Bot Maker Jubbio (75 BDFD Fonksiyon)</title>
+    <title>BMJ - Jubbio Bot Host</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
     
@@ -21,6 +21,7 @@
             --border-glow: rgba(139, 92, 246, 0.25);
             --danger: #ef4444;
             --success: #10b981;
+            --warning: #f59e0b;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; user-select: none; }
@@ -36,32 +37,31 @@
         .input-group { margin-bottom: 12px; position: relative; }
         .input-group i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-sub); }
         .input-box { width: 100%; padding: 12px 12px 12px 40px; background: var(--bg-input); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; color: #fff; outline: none; user-select: text; }
-        .btn { width: 100%; padding: 12px; border: none; border-radius: 12px; font-weight: 700; color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn { width: 100%; padding: 12px; border: none; border-radius: 12px; font-weight: 700; color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.9rem; }
         .btn-purple { background: linear-gradient(135deg, #6366f1, var(--neon-purple)); }
         .btn-blue { background: linear-gradient(135deg, #1d4ed8, var(--neon-blue)); }
         .btn-danger { background: var(--danger); }
+        .btn-warning { background: var(--warning); color: #000; }
         .btn-secondary { background: rgba(255, 255, 255, 0.08); color: var(--text-sub); }
         .empty-box { margin: auto; text-align: center; color: var(--text-sub); font-size: 1rem; }
         .bot-list { display: flex; flex-direction: column; gap: 10px; }
         .bot-card { background: var(--bg-card); backdrop-filter: blur(12px); border-radius: 14px; padding: 14px; border: 1px solid var(--border-glow); border-left: 4px solid var(--neon-purple); display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
-        .fab-btn { position: fixed; bottom: 20px; right: 20px; background: linear-gradient(135deg, #6366f1, var(--neon-purple)); color: #fff; padding: 12px 20px; border-radius: 30px; font-weight: 700; box-shadow: 0 6px 20px var(--glow-purple); cursor: pointer; z-index: 10; display: flex; align-items: center; gap: 8px; }
+        .fab-btn { position: fixed; bottom: 75px; right: 20px; background: linear-gradient(135deg, #6366f1, var(--neon-purple)); color: #fff; padding: 12px 20px; border-radius: 30px; font-weight: 700; box-shadow: 0 6px 20px var(--glow-purple); cursor: pointer; z-index: 10; display: flex; align-items: center; gap: 8px; }
         .glass-card { background: var(--bg-card); backdrop-filter: blur(12px); border: 1px solid var(--border-glow); padding: 14px; border-radius: 14px; margin-bottom: 12px; }
         .bottom-nav { position: absolute; bottom: 0; left: 0; right: 0; height: 60px; display: flex; background: rgba(9, 14, 36, 0.98); backdrop-filter: blur(16px); border-top: 1px solid var(--border-glow); z-index: 99; }
-        .nav-link { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; color: var(--text-sub); cursor: pointer; opacity: 0.4; }
+        .nav-link { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; color: var(--text-sub); cursor: pointer; opacity: 0.5; flex-direction: column; gap: 2px; }
+        .nav-link span { font-size: 0.65rem; }
         .nav-link.active { opacity: 1; color: var(--neon-purple); }
         .modal-bg { display: none; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(3, 5, 11, 0.92); backdrop-filter: blur(10px); z-index: 100; justify-content: center; align-items: center; padding: 16px; }
         .modal-box { background: var(--bg-darkblue); width: 100%; max-height: 90vh; display: flex; flex-direction: column; padding: 18px; border-radius: 20px; border: 1px solid var(--border-glow); }
         .code-area { width: 100%; height: 110px; background: #04060f; border: 1px solid var(--border-glow); border-radius: 12px; color: #a78bfa; font-family: 'JetBrains Mono', monospace; padding: 10px; outline: none; margin-bottom: 10px; resize: none; user-select: text; font-size: 0.8rem; }
-        .func-list-container { flex: 1; overflow-y: auto; background: rgba(4, 6, 15, 0.6); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 8px; margin-bottom: 10px; }
-        .func-item { padding: 6px 8px; font-size: 0.75rem; font-family: 'JetBrains Mono', monospace; border-bottom: 1px solid rgba(255,255,255,0.04); cursor: pointer; color: #cbd5e1; }
-        .func-item:hover { background: rgba(139, 92, 246, 0.15); color: #c084fc; border-radius: 6px; }
     </style>
 </head>
 <body>
 
 <div class="app-container">
     <div class="app-header">
-        <h1><i class="fa-solid fa-robot"></i> BMJ - Bot Maker Jubbio</h1>
+        <h1><i class="fa-solid fa-robot"></i> BMJ - Jubbio Bot Host</h1>
     </div>
 
     <!-- GİRİŞ EKRANI -->
@@ -80,69 +80,103 @@
         </div>
     </div>
 
-    <!-- ANA EKRAN -->
+    <!-- ANA EKRAN (BOTLAR LİSTESİ) -->
     <div id="main-screen" class="view-panel">
         <div id="bot-list-box" class="bot-list"></div>
-        <div class="fab-btn" onclick="openModal('make-modal')"><i class="fa-solid fa-plus"></i> Make Bot</div>
+        <div class="fab-btn" onclick="openModal('make-modal')"><i class="fa-solid fa-plus"></i> Create Bot</div>
     </div>
 
-    <!-- BOT DETAY -->
+    <!-- BOT DETAY & YÖNETİM SEKMELERİ -->
     <div id="detail-screen" class="view-panel">
+        
+        <!-- 1. BOT ANA SAYFA (Host Süresi & Host Ver & Unhost) -->
         <div id="tab-home" class="tab-sec">
             <div class="glass-card">
                 <p style="font-size:0.75rem; color:var(--text-sub);">Bot İsmi</p>
                 <h2 id="bot-name-txt" style="font-size:1.3rem; margin-top:2px;">-</h2>
+                <p id="bot-status-txt" style="font-size:0.8rem; margin-top:6px; color:var(--danger);"><i class="fa-solid fa-circle" style="font-size:0.6rem"></i> Durum: İnaktif</p>
             </div>
-            <button class="btn btn-purple" onclick="deployBotToServer()"><i class="fa-solid fa-bolt"></i> Render'da Botu Çalıştır</button>
-            <div class="glass-card" style="margin-top:12px;">
-                <h4 style="font-size:0.85rem; margin-bottom:6px; color:var(--text-sub);">75 Fonksiyonlu BDFD Engine</h4>
-                <p style="font-size:0.8rem;"><i class="fa-solid fa-check" style="color:var(--success)"></i> &sendMessage, &setVar, &if ve 72 fonksiyon aktif!</p>
+
+            <div class="glass-card" style="border-color: var(--warning);">
+                <p style="font-size:0.75rem; color:var(--text-sub);">Kalan Host Süresi</p>
+                <h3 id="host-time-txt" style="font-size:1.4rem; color:var(--warning); margin: 4px 0;">24:00:00</h3>
+                <button class="btn btn-warning" style="margin-top:8px;" onclick="addHostTime()"><i class="fa-solid fa-clock"></i> Host Ver (+2 Saat)</button>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-bottom: 12px;">
+                <button class="btn btn-purple" style="flex:1;" onclick="deployBotToServer()"><i class="fa-solid fa-bolt"></i> Başlat</button>
+                <button class="btn btn-danger" style="flex:1;" onclick="unhostBot()"><i class="fa-solid fa-power-off"></i> Unhost</button>
             </div>
         </div>
 
+        <!-- 2. KOD OLUŞTURMA VE LİSTELEME SAYFASI -->
         <div id="tab-codes" class="tab-sec" style="display:none;">
             <button class="btn btn-blue" style="margin-bottom:12px;" onclick="openAddCodeModal()"><i class="fa-solid fa-plus"></i> Yeni Komut Ekle</button>
             <div id="code-list-box"></div>
         </div>
 
-        <div id="tab-settings" class="tab-sec" style="display:none;">
-            <button class="btn btn-danger" style="margin-bottom:12px;" onclick="deleteBot()"><i class="fa-solid fa-trash"></i> Botu Sil</button>
-            <button class="btn btn-secondary" onclick="exitDetail()"><i class="fa-solid fa-arrow-left"></i> Geri Dön</button>
+        <!-- 3. VARIABLE SAYFASI -->
+        <div id="tab-vars" class="tab-sec" style="display:none;">
+            <div class="glass-card">
+                <h4 style="font-size:0.9rem; margin-bottom:8px;"><i class="fa-solid fa-database"></i> Değişken (Variable) Yönetimi</h4>
+                <div class="input-group" style="margin-bottom:8px;">
+                    <input type="text" id="var-name" class="input-box" style="padding-left:14px;" placeholder="Değişken Adı (Örn: para)">
+                </div>
+                <div class="input-group" style="margin-bottom:8px;">
+                    <input type="text" id="var-val" class="input-box" style="padding-left:14px;" placeholder="Değer (Örn: 100)">
+                </div>
+                <button class="btn btn-purple" onclick="saveVariable()">Değişken Kaydet</button>
+            </div>
+            <div id="var-list-box"></div>
         </div>
 
+        <!-- 4. YÖNETİM SAYFASI (Token Güncelle & Botu Sil) -->
+        <div id="tab-settings" class="tab-sec" style="display:none;">
+            <div class="glass-card">
+                <h4 style="font-size:0.9rem; margin-bottom:8px;"><i class="fa-solid fa-key"></i> Token Güncelle</h4>
+                <div class="input-group" style="margin-bottom:8px;">
+                    <input type="text" id="update-token-input" class="input-box" style="padding-left:14px;" placeholder="Yeni Bot Token">
+                </div>
+                <button class="btn btn-blue" onclick="updateBotToken()">Tokeni Kaydet</button>
+            </div>
+            <button class="btn btn-danger" style="margin-top:12px;" onclick="deleteBot()"><i class="fa-solid fa-trash"></i> Botu Sil</button>
+            <button class="btn btn-secondary" style="margin-top:12px;" onclick="exitDetail()"><i class="fa-solid fa-arrow-left"></i> Geri Dön</button>
+        </div>
+
+        <!-- ALT MENÜ -->
         <div class="bottom-nav">
-            <div class="nav-link active" onclick="switchTab('home', this)">🏡</div>
-            <div class="nav-link" onclick="switchTab('codes', this)">🖥️</div>
-            <div class="nav-link" onclick="switchTab('settings', this)">⚙️</div>
+            <div class="nav-link active" onclick="switchTab('home', this)"><i class="fa-solid fa-house"></i><span>Ana Sayfa</span></div>
+            <div class="nav-link" onclick="switchTab('codes', this)"><i class="fa-solid fa-code"></i><span>Kodlar</span></div>
+            <div class="nav-link" onclick="switchTab('vars', this)"><i class="fa-solid fa-database"></i><span>Variable</span></div>
+            <div class="nav-link" onclick="switchTab('settings', this)"><i class="fa-solid fa-gear"></i><span>Yönetim</span></div>
         </div>
     </div>
 
-    <!-- MODAL: MAKE BOT -->
+    <!-- MODAL: CREATE BOT -->
     <div id="make-modal" class="modal-bg">
-        <div class="modal-box" style="max-height: auto;">
-            <h3 style="margin-bottom:12px; font-size:1.1rem;">Yeni BDFD Bot Oluştur</h3>
+        <div class="modal-box" style="max-height:auto;">
+            <h3 style="margin-bottom:12px; font-size:1.1rem;">Create Bot (Jubbio)</h3>
+            <div class="input-group">
+                <i class="fa-solid fa-robot"></i>
+                <input type="text" id="make-name" class="input-box" placeholder="Bot İsmi (Örn: Eletro Bosch)">
+            </div>
             <div class="input-group">
                 <i class="fa-solid fa-key"></i>
-                <input type="text" id="make-token" class="input-box" placeholder="Bot Token">
+                <input type="text" id="make-token" class="input-box" placeholder="Jubbio Bot Token">
             </div>
-            <button class="btn btn-purple" onclick="submitMakeBot()">Oluştur</button>
+            <button class="btn btn-purple" onclick="submitMakeBot()">Oluştur (24 Saat Host Hediyeli)</button>
             <button class="btn btn-secondary" style="margin-top:6px;" onclick="closeModal('make-modal')">İptal</button>
         </div>
     </div>
 
-    <!-- MODAL: KOD VE 75 FONKSİYON LİSTESİ -->
+    <!-- MODAL: KOD DÜZENLE -->
     <div id="code-modal" class="modal-bg">
         <div class="modal-box">
-            <h3 style="margin-bottom:8px; font-size:1rem;">(&) BDFD Kod Editörü & Fonksiyonlar</h3>
+            <h3 style="margin-bottom:8px; font-size:1rem;">Komut Editörü</h3>
             <div class="input-group" style="margin-bottom:8px;">
-                <i class="fa-solid fa-tag"></i>
-                <input type="text" id="code-title" class="input-box" placeholder="Komut Adı (ping.bdfd)">
+                <input type="text" id="code-title" class="input-box" style="padding-left:14px;" placeholder="Komut Adı (ping.js)">
             </div>
             <textarea id="code-body" class="code-area"></textarea>
-            
-            <p style="font-size:0.75rem; color:var(--text-sub); margin-bottom:4px;">75 Ana Fonksiyon (Eklemek için tıkla):</p>
-            <div class="func-list-container" id="func-list-box"></div>
-
             <button class="btn btn-purple" onclick="submitSaveCode()">Kaydet</button>
             <button class="btn btn-secondary" style="margin-top:6px;" onclick="closeModal('code-modal')">İptal</button>
         </div>
@@ -152,103 +186,9 @@
 <script>
     const RENDER_API_URL = window.location.origin;
 
-    // BDFD 75 Ana Fonksiyon Listesi
-    const bdfdFunctions = [
-        "&sendMessage[metin] - Kanala mesaj gönderir.",
-        "&reply[metin] - Mesaja yanıt verir.",
-        "&deleteMessage - Mesajı siler.",
-        "&react[emoji] - Mesaja emoji tepkisi ekler.",
-        "&author[isim;avatar] - Embed yazarını ayarlar.",
-        "&title[başlık] - Embed başlığı ekler.",
-        "&description[açıklama] - Embed açıklaması ekler.",
-        "&color[hex] - Embed rengini ayarlar.",
-        "&footer[metin] - Embed alt bilgisi ekler.",
-        "&image[url] - Embed görseli ekler.",
-        "&thumbnail[url] - Embed küçük resmi ekler.",
-        "&addTimestamp - Embed zaman damgası ekler.",
-        "&setVar[değişken;değer] - Sunucu değişkeni kaydeder.",
-        "&getVar[değişken] - Sunucu değişkenini okur.",
-        "&setUserVar[değişken;değer] - Kullanıcı değişkeni kaydeder.",
-        "&getUserVar[değişken] - Kullanıcı değişkenini okur.",
-        "&addVar[değişken;sayı] - Değişkene sayı ekler.",
-        "&subVar[değişken;sayı] - Değişkenden sayı çıkarır.",
-        "&if[koşul] - Koşul bloğu başlatır.",
-        "&endIf - Koşul bloğunu bitirir.",
-        "&authorID - Mesajı yazanın ID'sini verir.",
-        "&authorTag - Mesajı yazanın etiketini verir.",
-        "&authorName - Mesajı yazanın adını verir.",
-        "&channelID - Bulunduğu kanalın ID'sini verir.",
-        "&channelName - Kanalın adını verir.",
-        "&guildID - Sunucu ID'sini verir.",
-        "&guildName - Sunucu adını verir.",
-        "&guildMembers - Sunucu üye sayısını verir.",
-        "&ban[kullanıcıID] - Kullanıcıyı sunucudan yasaklar.",
-        "&kick[kullanıcıID] - Kullanıcıyı sunucudan atar.",
-        "&mute[kullanıcıID] - Kullanıcıyı susturur.",
-        "&unmute[kullanıcıID] - Kullanıcının susturmasını açar.",
-        "&timeout[kullanıcıID;süre] - Kullanıcıya zaman aşımı atar.",
-        "&role[kullanıcıID;rolID] - Kullanıcıya rol verir.",
-        "&takeRole[kullanıcıID;rolID] - Kullanıcıdan rol alır.",
-        "&createRole[isim] - Yeni rol oluşturur.",
-        "&deleteRole[rolID] - Rolü siler.",
-        "&clear[sayı] - Belirtilen miktarda mesaj siler.",
-        "&slowmode[saniye] - Kanala yavaş mod ekler.",
-        "&lock - Kanalı yazmaya kapatır.",
-        "&unlock - Kanalı yazmaya açar.",
-        "&addEmoji[url;isim] - Sunucuya emoji ekler.",
-        "&deleteEmoji[emojiID] - Emojiyi siler.",
-        "&random[min;max] - Rastgele sayı üretir.",
-        "&ping - Botun gecikme süresini gösterir.",
-        "&botID - Botun ID'sini verir.",
-        "&botName - Botun adını verir.",
-        "&uptime - Botun açık kalma süresini verir.",
-        "&channelCreate[isim] - Yeni kanal açar.",
-        "&channelDelete - Kanalı siler.",
-        "&categoryCreate[isim] - Kategori oluşturur.",
-        "&giveaway[süre;ödül] - Çekiliş başlatır.",
-        "&poll[soru;seçenekler] - Anket oluşturur.",
-        "&ticket[kategoriID] - Destek talebi açar.",
-        "&closeTicket - Destek talebini kapatır.",
-        "&eval[kod] - Kod çalıştırır.",
-        "&exec[komut] - Terminal komutu çalıştırır.",
-        "&text[metin] - Düz metin çıktısı verir.",
-        "&math[işlem] - Matematiksel işlem yapar.",
-        "&upper[metin] - Metni büyük harfe çevirir.",
-        "&lower[metin] - Metni küçük harfe çevirir.",
-        "&length[metin] - Metin uzunluğunu ölçer.",
-        "&replace[metin;eski;yeni] - Metinde değiştirme yapar.",
-        "&subtext[metin;başlangıç;uzunluk] - Metni böler.",
-        "&array[elemanlar] - Dizi oluşturur.",
-        "&json[veri] - JSON verisi işler.",
-        "&httpGet[url] - API'ye istek atar.",
-        "&httpPost[url;veri] - API'ye POST isteği atar.",
-        "&channelTopic[konu] - Kanal konusunu değiştirir.",
-        "&serverIcon - Sunucu simgesini gösterir.",
-        "&serverBanner - Sunucu afişini gösterir.",
-        "&boostCount - Sunucu takviye sayısını verir.",
-        "&creationDate[kullanıcıID] - Hesap açılış tarihini verir.",
-        "&joinedDate[kullanıcıID] - Sunucuya katılım tarihini verir."
-    ];
-
-    let appData = JSON.parse(localStorage.getItem('bmj_jubbio_db_v11')) || { bots: [] };
+    let appData = JSON.parse(localStorage.getItem('bmj_jubbio_host_db')) || { bots: [] };
     let currentBotId = null;
     let editingCodeIdx = null;
-
-    function initFuncList() {
-        const box = document.getElementById('func-list-box');
-        box.innerHTML = '';
-        bdfdFunctions.forEach(fn => {
-            const div = document.createElement('div');
-            div.className = 'func-item';
-            div.innerText = fn;
-            div.onclick = () => {
-                const textarea = document.getElementById('code-body');
-                const funcName = fn.split(' - ')[0];
-                textarea.value += "\n" + funcName;
-            };
-            box.appendChild(div);
-        });
-    }
 
     function login() {
         if(!document.getElementById('user-input').value || !document.getElementById('pass-input').value) return alert("Bilgileri doldur!");
@@ -256,7 +196,7 @@
         document.getElementById('main-screen').classList.add('active');
         renderMainScreen();
     }
-    function openModal(id) { document.getElementById(id).style.display = 'flex'; if(id === 'code-modal') initFuncList(); }
+    function openModal(id) { document.getElementById(id).style.display = 'flex'; }
     function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
     function renderMainScreen() {
@@ -266,16 +206,26 @@
             const card = document.createElement('div');
             card.className = 'bot-card';
             card.onclick = () => openBotDetail(bot.id);
-            card.innerHTML = `<div><h4>${bot.name}</h4><p style="font-size:0.75rem; color:var(--text-sub);">Komut: ${bot.codes.length}</p></div><i class="fa-solid fa-chevron-right" style="color:var(--text-sub)"></i>`;
+            card.innerHTML = `<div><h4>${bot.name}</h4><p style="font-size:0.75rem; color:var(--text-sub);">Komut: ${bot.codes.length} | Variable: ${bot.variables.length}</p></div><i class="fa-solid fa-chevron-right" style="color:var(--text-sub)"></i>`;
             box.appendChild(card);
         });
     }
 
     function submitMakeBot() {
+        const name = document.getElementById('make-name').value.trim();
         const token = document.getElementById('make-token').value.trim();
-        if (!token) return alert("Token gir!");
-        appData.bots.push({ id: Date.now(), name: "BMJ_Bot_" + Math.floor(Math.random()*1000), token, codes: [{ name: 'ping.bdfd', content: '&trigger[messageCreate]\n&sendMessage[Pong!]' }] });
-        localStorage.setItem('bmj_jubbio_db_v11', JSON.stringify(appData));
+        if (!name || !token) return alert("İsim ve Token gir!");
+        
+        appData.bots.push({
+            id: Date.now(),
+            name,
+            token,
+            hostSeconds: 86400, // İlk bot yapımında 24 saat hediye (saniye cinsinden)
+            isActive: false,
+            codes: [{ name: 'ping.js', content: '&trigger[messageCreate]\n&sendMessage[Pong!]' }],
+            variables: []
+        });
+        localStorage.setItem('bmj_jubbio_host_db', JSON.stringify(appData));
         closeModal('make-modal');
         renderMainScreen();
     }
@@ -284,10 +234,15 @@
         currentBotId = id;
         const bot = appData.bots.find(b => b.id == id);
         document.getElementById('bot-name-txt').innerText = bot.name;
+        document.getElementById('update-token-input').value = bot.token;
+        updateBotStatusUI(bot);
+        updateHostTimeDisplay(bot);
+
         document.getElementById('main-screen').classList.remove('active');
         document.getElementById('detail-screen').classList.add('active');
         switchTab('home', document.querySelectorAll('.nav-link')[0]);
         renderCodes(bot);
+        renderVariables(bot);
     }
 
     function exitDetail() {
@@ -304,6 +259,34 @@
         if(el) el.classList.add('active');
     }
 
+    function updateHostTimeDisplay(bot) {
+        let hrs = Math.floor(bot.hostSeconds / 3600);
+        let mins = Math.floor((bot.hostSeconds % 3600) / 60);
+        let secs = bot.hostSeconds % 60;
+        document.getElementById('host-time-txt').innerText = 
+            String(hrs).padStart(2,'0') + ":" + String(mins).padStart(2,'0') + ":" + String(secs).padStart(2,'0');
+    }
+
+    // Her 5 dakikada 2 saat ekleme sistemi (Butona basınca veya otomatik tetiklenebilir)
+    function addHostTime() {
+        const bot = appData.bots.find(b => b.id == currentBotId);
+        bot.hostSeconds += 7200; // 2 saat = 7200 saniye
+        localStorage.setItem('bmj_jubbio_host_db', JSON.stringify(appData));
+        updateHostTimeDisplay(bot);
+        alert("🎉 Host süresine 2 saat eklendi!");
+    }
+
+    function updateBotStatusUI(bot) {
+        const st = document.getElementById('bot-status-txt');
+        if(bot.isActive) {
+            st.innerHTML = `<i class="fa-solid fa-circle" style="font-size:0.6rem; color:var(--success)"></i> Durum: Aktif (Çalışıyor)`;
+            st.style.color = "var(--success)";
+        } else {
+            st.innerHTML = `<i class="fa-solid fa-circle" style="font-size:0.6rem; color:var(--danger)"></i> Durum: İnaktif`;
+            st.style.color = "var(--danger)";
+        }
+    }
+
     async function deployBotToServer() {
         const bot = appData.bots.find(b => b.id == currentBotId);
         try {
@@ -313,9 +296,31 @@
                 body: JSON.stringify({ botId: bot.id, token: bot.token, codes: bot.codes })
             });
             const data = await res.json();
-            alert(data.message || "Bot Render sunucusunda tetiklendi!");
+            if(res.ok) {
+                bot.isActive = true;
+                localStorage.setItem('bmj_jubbio_host_db', JSON.stringify(appData));
+                updateBotStatusUI(bot);
+            }
+            alert(data.message || data.error);
         } catch(err) {
             alert("Render bağlantı hatası!");
+        }
+    }
+
+    async function unhostBot() {
+        const bot = appData.bots.find(b => b.id == currentBotId);
+        try {
+            const res = await fetch(`${RENDER_API_URL}/api/stop-bot`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ botId: bot.id })
+            });
+            bot.isActive = false;
+            localStorage.setItem('bmj_jubbio_host_db', JSON.stringify(appData));
+            updateBotStatusUI(bot);
+            alert("Bot unhost edildi (durduruldu)!");
+        } catch(err) {
+            alert("Bağlantı hatası!");
         }
     }
 
@@ -345,15 +350,60 @@
         const bot = appData.bots.find(b => b.id == currentBotId);
         if(editingCodeIdx !== null) bot.codes[editingCodeIdx] = { name: title, content };
         else bot.codes.push({ name: title, content });
-        localStorage.setItem('bmj_jubbio_db_v11', JSON.stringify(appData));
+        localStorage.setItem('bmj_jubbio_host_db', JSON.stringify(appData));
         closeModal('code-modal');
         renderCodes(bot);
     }
 
+    function renderVariables(bot) {
+        const box = document.getElementById('var-list-box');
+        box.innerHTML = '<h4 style="font-size:0.85rem; margin:10px 0 6px 0; color:var(--text-sub);">Kayıtlı Variable\'lar:</h4>';
+        if(bot.variables.length === 0) {
+            box.innerHTML += `<p style="font-size:0.75rem; color:var(--text-sub);">Henüz değişken eklenmemiş.</p>`;
+            return;
+        }
+        bot.variables.forEach((v, idx) => {
+            const item = document.createElement('div');
+            item.className = 'glass-card';
+            item.innerHTML = `<strong>${v.name}</strong> = ${v.val} <button class="btn btn-danger" style="padding:4px; font-size:0.7rem; margin-top:6px;" onclick="deleteVar(${idx})">Sil</button>`;
+            box.appendChild(item);
+        });
+    }
+
+    function saveVariable() {
+        const name = document.getElementById('var-name').value.trim();
+        const val = document.getElementById('var-val').value.trim();
+        if(!name) return alert("Değişken adı gir!");
+        const bot = appData.bots.find(b => b.id == currentBotId);
+        bot.variables.push({ name, val });
+        localStorage.setItem('bmj_jubbio_host_db', JSON.stringify(appData));
+        document.getElementById('var-name').value = '';
+        document.getElementById('var-val').value = '';
+        renderVariables(bot);
+        renderMainScreen();
+    }
+
+    function deleteVar(idx) {
+        const bot = appData.bots.find(b => b.id == currentBotId);
+        bot.variables.splice(idx, 1);
+        localStorage.setItem('bmj_jubbio_host_db', JSON.stringify(appData));
+        renderVariables(bot);
+        renderMainScreen();
+    }
+
+    function updateBotToken() {
+        const newToken = document.getElementById('update-token-input').value.trim();
+        if(!newToken) return alert("Token boş olamaz!");
+        const bot = appData.bots.find(b => b.id == currentBotId);
+        bot.token = newToken;
+        localStorage.setItem('bmj_jubbio_host_db', JSON.stringify(appData));
+        alert("✅ Token başarıyla güncellendi!");
+    }
+
     function deleteBot() {
-        if(confirm("Silinsin mi?")) {
+        if(confirm("Bu botu kalıcı olarak silmek istediğine emin misin?")) {
             appData.bots = appData.bots.filter(b => b.id != currentBotId);
-            localStorage.setItem('bmj_jubbio_db_v11', JSON.stringify(appData));
+            localStorage.setItem('bmj_jubbio_host_db', JSON.stringify(appData));
             exitDetail();
         }
     }
