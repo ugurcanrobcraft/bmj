@@ -15,7 +15,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 const activeBots = new Map();
 
-// 75 Ana BDFD Fonksiyonunu Yorumlayan Motor
+// Jubbio Core ile Botu Çalıştırma ve BDFD / Kod Yorumlayıcı
 app.post('/api/run-bot', async (req, res) => {
     const { botId, token, codes } = req.body;
     if (!token) return res.status(400).json({ error: "Token eksik!" });
@@ -30,24 +30,23 @@ app.post('/api/run-bot', async (req, res) => {
             intents: [
                 GatewayIntentBits.Guilds,
                 GatewayIntentBits.GuildMessages,
-                GatewayIntentBits.MessageContent
+                GatewayIntentBits.MessageContent,
+                GatewayIntentBits.GuildVoiceStates
             ]
         });
 
+        client.on('ready', () => {
+            console.log(`✅ [Jubbio Bot] ${client.user?.username} olarak giriş yapıldı!`);
+        });
+
+        // BDFD / Özel Komut İşleyicisi
         client.on('messageCreate', (message) => {
             if (message.author.bot) return;
-            
             codes.forEach(script => {
-                const content = script.content;
-                
-                // Trigger Kontrolü
-                if (content.includes('&trigger[messageCreate]')) {
-                    // Mesaj Gönderme (&sendMessage[Metin])
-                    if (content.includes('&sendMessage')) {
-                        const match = content.match(/&sendMessage\[(.*?)\]/);
-                        if (match) {
-                            message.channel.send(match[1]);
-                        }
+                if (script.content.includes('&sendMessage')) {
+                    const match = script.content.match(/&sendMessage\[(.*?)\]/);
+                    if (match && message.content.startsWith("!")) {
+                        message.channel.send(match[1]);
                     }
                 }
             });
@@ -56,12 +55,22 @@ app.post('/api/run-bot', async (req, res) => {
         await client.login(token);
         activeBots.set(botId, client);
 
-        return res.json({ success: true, message: "Bot 75 BDFD Fonksiyon motoruyla Render'da aktif!" });
+        return res.json({ success: true, message: "Bot Jubbio Core ile aktif edildi!" });
     } catch (err) {
         return res.status(500).json({ error: err.message });
     }
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 BMJ 75 Fonksiyonlu Sistem ${PORT} portunda aktif!`));
+// Botu Durdurma (Unhost)
+app.post('/api/stop-bot', (req, res) => {
+    const { botId } = req.body;
+    if (activeBots.has(botId)) {
+        activeBots.get(botId).destroy();
+        activeBots.delete(botId);
+        return res.json({ success: true, message: "Bot unhost edildi (durduruldu)." });
+    }
+    return res.json({ success: true, message: "Bot zaten inaktif." });
+});
 
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`🚀 BMJ Jubbio Host Sistemi ${PORT} portunda aktif!`));
