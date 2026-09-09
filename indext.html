@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <!-- Mobil ve tabletlerde ekranın yakınlaştırılmasını engeller, tam uygulama hissiyatı verir -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AppleBasket</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            /* Dokunmatik kaydırmaları engeller */
+            touch-action: none; 
+        }
+        
+        #gameCanvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        #ui-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #score-display {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 28px;
+            font-weight: 800;
+            color: #2f3542;
+            text-shadow: 2px 2px 0px rgba(255,255,255,0.7);
+        }
+
+        .menu-screen {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            text-align: center;
+            pointer-events: auto;
+            transform: scale(1);
+            transition: transform 0.3s ease;
+        }
+
+        h1 {
+            margin: 0 0 10px 0;
+            color: #ff4757;
+            font-size: 36px;
+            letter-spacing: 1px;
+        }
+
+        p {
+            color: #57606f;
+            font-size: 16px;
+            margin-bottom: 25px;
+        }
+
+        button {
+            background-color: #2ed573;
+            border: none;
+            padding: 15px 40px;
+            font-size: 20px;
+            color: white;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(46, 213, 115, 0.4);
+            transition: all 0.2s;
+        }
+
+        button:active {
+            transform: scale(0.95);
+            box-shadow: 0 2px 10px rgba(46, 213, 115, 0.4);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="gameCanvas"></canvas>
+
+    <div id="ui-layer">
+        <div id="score-display">Score: <span id="score">0</span></div>
+        
+        <div id="start-screen" class="menu-screen">
+            <h1>AppleBasket</h1>
+            <p>Catch GREEN apples.<br>Avoid RED apples.<br>Don't miss the greens!</p>
+            <button onclick="startGame()">PLAY NOW</button>
+        </div>
+
+        <div id="game-over-screen" class="menu-screen hidden">
+            <h1>Game Over!</h1>
+            <p id="fail-reason">You missed a green apple!</p>
+            <p style="font-size: 22px; font-weight: bold; color: #2f3542;">Score: <span id="final-score">0</span></p>
+            <button onclick="startGame()">TRY AGAIN</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreElement = document.getElementById('score');
+        
+        let width, height;
+        let score = 0;
+        let gameLoop;
+        let isPlaying = false;
+        
+        // Sepet (Basket)
+        let basket = {
+            x: 0,
+            y: 0,
+            width: 100,
+            height: 40,
+            color: '#8b4513'
+        };
+
+        // Elmalar (Apples)
+        let apples = [];
+        let appleSpawnTimer = 0;
+        let baseFallSpeed = 3;
+
+        // Ekran boyutlarını ayarla
+        function resize() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+            basket.y = height - 80;
+            if(!isPlaying) basket.x = width / 2 - basket.width / 2;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        // Dokunmatik / Mouse Kontrolleri
+        function moveBasket(clientX) {
+            if (!isPlaying) return;
+            let newX = clientX - basket.width / 2;
+            if (newX < 0) newX = 0;
+            if (newX + basket.width > width) newX = width - basket.width;
+            basket.x = newX;
+        }
+
+        canvas.addEventListener('touchmove', (e) => {
+            e.preventDefault(); // Ekran kaymasını engeller
+            moveBasket(e.touches[0].clientX);
+        }, { passive: false });
+
+        canvas.addEventListener('mousemove', (e) => {
+            moveBasket(e.clientX);
+        });
+
+        // Elma Sınıfı
+        class Apple {
+            constructor() {
+                this.radius = 20;
+                this.x = Math.random() * (width - this.radius * 2) + this.radius;
+                this.y = -30;
+                this.isGreen = Math.random() > 0.3; 
+                this.color = this.isGreen ? '#2ed573' : '#ff4757';
+                this.speed = baseFallSpeed + (score * 0.1) + (Math.random() * 2);
+            }
+
+            draw() {
+                // Sapı
+                ctx.fillStyle = '#5c4033';
+                ctx.fillRect(this.x - 2, this.y - this.radius - 5, 4, 10);
+                
+                // Yaprağı
+                ctx.fillStyle = '#2bad60';
+                ctx.beginPath();
+                ctx.ellipse(this.x + 6, this.y - this.radius - 2, 6, 3, Math.PI / 4, 0, 2 * Math.PI);
+                ctx.fill();
+
+                // Elmanın Kendisi
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            update() {
+                this.y += this.speed;
+            }
+        }
+
+        function spawnApple() {
+            let spawnRate = Math.max(30, 80 - (score * 1.5)); 
+            if (appleSpawnTimer > spawnRate) {
+                apples.push(new Apple());
+                appleSpawnTimer = 0;
+            }
+            appleSpawnTimer++;
+        }
+
+        function checkCollisions() {
+            for (let i = 0; i < apples.length; i++) {
+                let a = apples[i];
+                
+                let distX = Math.abs(a.x - basket.x - basket.width / 2);
+                let distY = Math.abs(a.y - basket.y - basket.height / 2);
+
+                if (distX <= (basket.width / 2 + a.radius) && distY <= (basket.height / 2 + a.radius)) {
+                    if (a.isGreen) {
+                        score++;
+                        scoreElement.innerText = score;
+                        apples.splice(i, 1);
+                        i--;
+                    } else {
+                        gameOver("You caught a RED apple!");
+                    }
+                    continue;
+                }
+
+                if (a.y - a.radius > height) {
+                    if (a.isGreen) {
+                        gameOver("You missed a GREEN apple!");
+                    } else {
+                        apples.splice(i, 1);
+                        i--;
+                    }
+                }
+            }
+        }
+
+        function drawBasket() {
+            ctx.fillStyle = basket.color;
+            ctx.beginPath();
+            ctx.roundRect(basket.x, basket.y, basket.width, basket.height, [10, 10, 20, 20]);
+            ctx.fill();
+            
+            ctx.strokeStyle = '#6b3410';
+            ctx.lineWidth = 2;
+            for(let i = 15; i < basket.width; i+= 20) {
+                ctx.beginPath();
+                ctx.moveTo(basket.x + i, basket.y);
+                ctx.lineTo(basket.x + i, basket.y + basket.height);
+                ctx.stroke();
+            }
+        }
+
+        function update() {
+            if (!isPlaying) return;
+
+            ctx.clearRect(0, 0, width, height);
+
+            drawBasket();
+            spawnApple();
+
+            apples.forEach(apple => {
+                apple.update();
+                apple.draw();
+            });
+
+            checkCollisions();
+
+            gameLoop = requestAnimationFrame(update);
+        }
+
+        function startGame() {
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('game-over-screen').classList.add('hidden');
+            
+            score = 0;
+            scoreElement.innerText = score;
+            apples = [];
+            appleSpawnTimer = 0;
+            isPlaying = true;
+            basket.x = width / 2 - basket.width / 2;
+            
+            update();
+        }
+
+        function gameOver(reason) {
+            isPlaying = false;
+            cancelAnimationFrame(gameLoop);
+            
+            document.getElementById('fail-reason').innerText = reason;
+            document.getElementById('final-score').innerText = score;
+            document.getElementById('game-over-screen').classList.remove('hidden');
+
+            // --- KODULAR KÖPRÜSÜ ---
+            // Oyuncu yandığında Kodular WebViewer bileşenine "gameover" mesajı gönderir
+            if (window.AppInventor) {
+                window.AppInventor.setWebViewString("gameover");
+            }
+        }
+
+    </script>
+</body>
+</html>
+
