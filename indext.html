@@ -1,310 +1,238 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <!-- Mobil ve tabletlerde ekranın yakınlaştırılmasını engeller, tam uygulama hissiyatı verir -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AppleBasket</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Apple Basket</title>
     <style>
-        body, html {
+        * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        body, html {
             width: 100%;
             height: 100%;
             overflow: hidden;
-            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            /* Dokunmatik kaydırmaları engeller */
-            touch-action: none; 
+            background-color: #222;
+            font-family: Arial, sans-serif;
         }
-        
-        #gameCanvas {
+        #game-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+        canvas {
             display: block;
             width: 100%;
             height: 100%;
+            background: linear-gradient(to bottom, #87CEEB, #E0F6FF);
         }
-
         #ui-layer {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            text-shadow: 1px 1px 2px #fff;
+            pointer-events: none;
+        }
+        .screen {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            pointer-events: none;
+            background: rgba(0, 0, 0, 0.85);
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
-        }
-
-        #score-display {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            font-size: 28px;
-            font-weight: 800;
-            color: #2f3542;
-            text-shadow: 2px 2px 0px rgba(255,255,255,0.7);
-        }
-
-        .menu-screen {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
-            text-align: center;
-            pointer-events: auto;
-            transform: scale(1);
-            transition: transform 0.3s ease;
-        }
-
-        h1 {
-            margin: 0 0 10px 0;
-            color: #ff4757;
-            font-size: 36px;
-            letter-spacing: 1px;
-        }
-
-        p {
-            color: #57606f;
-            font-size: 16px;
-            margin-bottom: 25px;
-        }
-
-        button {
-            background-color: #2ed573;
-            border: none;
-            padding: 15px 40px;
-            font-size: 20px;
             color: white;
-            border-radius: 30px;
-            cursor: pointer;
-            font-weight: bold;
-            box-shadow: 0 5px 15px rgba(46, 213, 115, 0.4);
-            transition: all 0.2s;
+            z-index: 10;
         }
-
-        button:active {
-            transform: scale(0.95);
-            box-shadow: 0 2px 10px rgba(46, 213, 115, 0.4);
-        }
-
         .hidden {
             display: none !important;
+        }
+        h1 {
+            font-size: 36px;
+            margin-bottom: 10px;
+            color: #FFD700;
+        }
+        p {
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 15px 35px;
+            font-size: 20px;
+            font-weight: bold;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            transition: transform 0.1s;
+        }
+        button:active {
+            transform: scale(0.95);
         }
     </style>
 </head>
 <body>
 
+<div id="game-container">
     <canvas id="gameCanvas"></canvas>
+    <div id="ui-layer">Skor: <span id="score">0</span></div>
 
-    <div id="ui-layer">
-        <div id="score-display">Score: <span id="score">0</span></div>
-        
-        <div id="start-screen" class="menu-screen">
-            <h1>AppleBasket</h1>
-            <p>Catch GREEN apples.<br>Avoid RED apples.<br>Don't miss the greens!</p>
-            <button onclick="startGame()">PLAY NOW</button>
-        </div>
-
-        <div id="game-over-screen" class="menu-screen hidden">
-            <h1>Game Over!</h1>
-            <p id="fail-reason">You missed a green apple!</p>
-            <p style="font-size: 22px; font-weight: bold; color: #2f3542;">Score: <span id="final-score">0</span></p>
-            <button onclick="startGame()">TRY AGAIN</button>
-        </div>
+    <!-- Başlangıç Ekranı -->
+    <div id="start-screen" class="screen">
+        <h1>Apple Basket</h1>
+        <p>Elmaları Sepetle Yakala!</p>
+        <button onclick="startGame()">OYUNA BAŞLA</button>
     </div>
 
-    <script>
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-        const scoreElement = document.getElementById('score');
+    <!-- Game Over Ekranı -->
+    <div id="game-over-screen" class="screen hidden">
+        <h1>OYUN BİTTİ</h1>
+        <p id="fail-reason">Elmayı Kaçırdın!</p>
+        <p>Toplam Skor: <span id="final-score">0</span></p>
+        <button onclick="restartGame()">TEKRAR OYNA</button>
+    </div>
+</div>
+
+<script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    let score = 0;
+    let isPlaying = false;
+    let gameLoop;
+    
+    // Sepet ve Elma Nesneleri
+    let basket = { x: 0, y: 0, width: 100, height: 20, speed: 8 };
+    let apple = { x: 0, y: 0, radius: 15, speed: 5 };
+
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        basket.y = canvas.height - 60;
+        basket.width = Math.min(canvas.width * 0.25, 120);
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    // Dokunmatik / Fare Kontrolleri
+    function moveBasket(e) {
+        if (!isPlaying) return;
+        let clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        basket.x = clientX - basket.width / 2;
+        if (basket.x < 0) basket.x = 0;
+        if (basket.x + basket.width > canvas.width) basket.x = canvas.width - basket.width;
+    }
+    canvas.addEventListener('mousemove', moveBasket);
+    canvas.addEventListener('touchmove', moveBasket);
+
+    function resetApple() {
+        apple.x = Math.random() * (canvas.width - apple.radius * 2) + apple.radius;
+        apple.y = -apple.radius;
+        apple.speed = 4 + Math.random() * 3 + (score * 0.2); // Skor arttıkça hızlanır
+    }
+
+    function startGame() {
+        score = 0;
+        document.getElementById('score').innerText = score;
+        document.getElementById('start-screen').classList.add('hidden');
+        document.getElementById('game-over-screen').classList.add('hidden');
         
-        let width, height;
-        let score = 0;
-        let gameLoop;
-        let isPlaying = false;
+        basket.x = canvas.width / 2 - basket.width / 2;
+        resetApple();
+        isPlaying = true;
         
-        // Sepet (Basket)
-        let basket = {
-            x: 0,
-            y: 0,
-            width: 100,
-            height: 40,
-            color: '#8b4513'
-        };
+        cancelAnimationFrame(gameLoop);
+        update();
+    }
 
-        // Elmalar (Apples)
-        let apples = [];
-        let appleSpawnTimer = 0;
-        let baseFallSpeed = 3;
+    function restartGame() {
+        startGame();
+    }
 
-        // Ekran boyutlarını ayarla
-        function resize() {
-            width = window.innerWidth;
-            height = window.innerHeight;
-            canvas.width = width;
-            canvas.height = height;
-            basket.y = height - 80;
-            if(!isPlaying) basket.x = width / 2 - basket.width / 2;
+    // --- REKLAM TETİKLEME FONKSİYONU ---
+    function triggerAdMobInterstitial() {
+        console.log("Reklam çağırma isteği gönderildi.");
+
+        // 1. Standart AndroidAPI (Örn: Native WebView / Android Studio Köprüleri)
+        if (typeof AndroidAPI !== 'undefined' && typeof AndroidAPI.showInterstitialAd === 'function') {
+            AndroidAPI.showInterstitialAd();
         }
-        window.addEventListener('resize', resize);
-        resize();
-
-        // Dokunmatik / Mouse Kontrolleri
-        function moveBasket(clientX) {
-            if (!isPlaying) return;
-            let newX = clientX - basket.width / 2;
-            if (newX < 0) newX = 0;
-            if (newX + basket.width > width) newX = width - basket.width;
-            basket.x = newX;
+        // 2. WebIntoApp Altyapısı
+        else if (typeof WebIntoApp !== 'undefined' && typeof WebIntoApp.showAd === 'function') {
+            WebIntoApp.showAd();
         }
+        // 3. Website2APK / Diğer Standart Arayüzler
+        else if (typeof Android !== 'undefined' && typeof Android.showInterstitial === 'function') {
+            Android.showInterstitial();
+        }
+        else {
+            console.log("Tarayıcı modundasınız, APK içerisinde reklam otomatik gösterilecektir.");
+        }
+    }
 
-        canvas.addEventListener('touchmove', (e) => {
-            e.preventDefault(); // Ekran kaymasını engeller
-            moveBasket(e.touches[0].clientX);
-        }, { passive: false });
+    function gameOver(reason) {
+        isPlaying = false;
+        cancelAnimationFrame(gameLoop);
 
-        canvas.addEventListener('mousemove', (e) => {
-            moveBasket(e.clientX);
-        });
+        document.getElementById('fail-reason').innerText = reason;
+        document.getElementById('final-score').innerText = score;
+        document.getElementById('game-over-screen').classList.remove('hidden');
 
-        // Elma Sınıfı
-        class Apple {
-            constructor() {
-                this.radius = 20;
-                this.x = Math.random() * (width - this.radius * 2) + this.radius;
-                this.y = -30;
-                this.isGreen = Math.random() > 0.3; 
-                this.color = this.isGreen ? '#2ed573' : '#ff4757';
-                this.speed = baseFallSpeed + (score * 0.1) + (Math.random() * 2);
-            }
+        // Yandığı an AdMob reklamını tetikle
+        triggerAdMobInterstitial();
+    }
 
-            draw() {
-                // Sapı
-                ctx.fillStyle = '#5c4033';
-                ctx.fillRect(this.x - 2, this.y - this.radius - 5, 4, 10);
-                
-                // Yaprağı
-                ctx.fillStyle = '#2bad60';
-                ctx.beginPath();
-                ctx.ellipse(this.x + 6, this.y - this.radius - 2, 6, 3, Math.PI / 4, 0, 2 * Math.PI);
-                ctx.fill();
+    function update() {
+        if (!isPlaying) return;
 
-                // Elmanın Kendisi
-                ctx.fillStyle = this.color;
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-                ctx.fill();
-            }
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            update() {
-                this.y += this.speed;
-            }
+        // Elmayı Düşür
+        apple.y += apple.speed;
+
+        // Çarpışma Kontrolü (Sepet Elmayı Yakaladı mı?)
+        if (
+            apple.y + apple.radius >= basket.y &&
+            apple.x >= basket.x &&
+            apple.x <= basket.x + basket.width
+        ) {
+            score += 10;
+            document.getElementById('score').innerText = score;
+            resetApple();
         }
 
-        function spawnApple() {
-            let spawnRate = Math.max(30, 80 - (score * 1.5)); 
-            if (appleSpawnTimer > spawnRate) {
-                apples.push(new Apple());
-                appleSpawnTimer = 0;
-            }
-            appleSpawnTimer++;
+        // Elma Yere Düştü mü? (Oyun Bitti)
+        if (apple.y - apple.radius > canvas.height) {
+            gameOver("Elmayı Kaçırdın!");
+            return;
         }
 
-        function checkCollisions() {
-            for (let i = 0; i < apples.length; i++) {
-                let a = apples[i];
-                
-                let distX = Math.abs(a.x - basket.x - basket.width / 2);
-                let distY = Math.abs(a.y - basket.y - basket.height / 2);
+        // Çizimler
+        // 1. Sepet
+        ctx.fillStyle = '#8B4513';
+        ctx.fillRect(basket.x, basket.y, basket.width, basket.height);
 
-                if (distX <= (basket.width / 2 + a.radius) && distY <= (basket.height / 2 + a.radius)) {
-                    if (a.isGreen) {
-                        score++;
-                        scoreElement.innerText = score;
-                        apples.splice(i, 1);
-                        i--;
-                    } else {
-                        gameOver("You caught a RED apple!");
-                    }
-                    continue;
-                }
+        // 2. Elma
+        ctx.beginPath();
+        ctx.arc(apple.x, apple.y, apple.radius, 0, Math.PI * 2);
+        ctx.fillStyle = '#FF0000';
+        ctx.fill();
+        ctx.closePath();
 
-                if (a.y - a.radius > height) {
-                    if (a.isGreen) {
-                        gameOver("You missed a GREEN apple!");
-                    } else {
-                        apples.splice(i, 1);
-                        i--;
-                    }
-                }
-            }
-        }
-
-        function drawBasket() {
-            ctx.fillStyle = basket.color;
-            ctx.beginPath();
-            ctx.roundRect(basket.x, basket.y, basket.width, basket.height, [10, 10, 20, 20]);
-            ctx.fill();
-            
-            ctx.strokeStyle = '#6b3410';
-            ctx.lineWidth = 2;
-            for(let i = 15; i < basket.width; i+= 20) {
-                ctx.beginPath();
-                ctx.moveTo(basket.x + i, basket.y);
-                ctx.lineTo(basket.x + i, basket.y + basket.height);
-                ctx.stroke();
-            }
-        }
-
-        function update() {
-            if (!isPlaying) return;
-
-            ctx.clearRect(0, 0, width, height);
-
-            drawBasket();
-            spawnApple();
-
-            apples.forEach(apple => {
-                apple.update();
-                apple.draw();
-            });
-
-            checkCollisions();
-
-            gameLoop = requestAnimationFrame(update);
-        }
-
-        function startGame() {
-            document.getElementById('start-screen').classList.add('hidden');
-            document.getElementById('game-over-screen').classList.add('hidden');
-            
-            score = 0;
-            scoreElement.innerText = score;
-            apples = [];
-            appleSpawnTimer = 0;
-            isPlaying = true;
-            basket.x = width / 2 - basket.width / 2;
-            
-            update();
-        }
-
-        function gameOver(reason) {
-            isPlaying = false;
-            cancelAnimationFrame(gameLoop);
-            
-            document.getElementById('fail-reason').innerText = reason;
-            document.getElementById('final-score').innerText = score;
-            document.getElementById('game-over-screen').classList.remove('hidden');
-
-            // --- KODULAR KÖPRÜSÜ ---
-            // Oyuncu yandığında Kodular WebViewer bileşenine "gameover" mesajı gönderir
-            if (window.AppInventor) {
-                window.AppInventor.setWebViewString("gameover");
-            }
-        }
-
-    </script>
+        gameLoop = requestAnimationFrame(update);
+    }
+</script>
 </body>
 </html>
-
